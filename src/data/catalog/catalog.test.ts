@@ -64,9 +64,16 @@ describe('catalog', () => {
 
   it('provides complete complexity for every LeetCode entry', () => {
     findCatalogItemsByDomain('leetcode').forEach(item => {
-      expect(item.complexity?.time).toMatch(/^O\(.+\)$/);
-      expect(item.complexity?.space).toMatch(/^O\(.+\)$/);
+      expect(item.complexity?.time).toMatch(/O\(.+\)/);
+      expect(item.complexity?.space).toMatch(/O\(.+\)/);
     });
+  });
+
+  it('documents average and worst-case quickselect complexity', () => {
+    expect(
+      findCatalogItemById('kth-largest-element-in-an-array')?.complexity
+        ?.time,
+    ).toBe('平均 O(n)，最坏 O(n²)');
   });
 
   it('preserves the migrated two-sum tags', () => {

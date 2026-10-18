@@ -115,7 +115,7 @@ function findKthLargest(values: number[], k: number): number {
       '固定选择末尾基准在有序输入上可能退化，可随机化基准提高稳定性。',
     ],
     complexity: {
-      time: 'O(n)',
+      time: '平均 O(n)，最坏 O(n²)',
       space: 'O(1)',
     },
   },

@@ -12,9 +12,9 @@ export const traversalItems = [
     description:
       '给定由 1 表示陆地、0 表示水域的二维网格，计算上下左右相邻陆地形成的岛屿数量。',
     approach:
-      '扫描每个单元格，遇到未访问陆地时计数加一，并从该位置深度优先遍历，将相连陆地标记为已访问。',
+      '扫描每个单元格，遇到未访问陆地时计数加一，并用显式栈从该位置迭代执行深度优先遍历，将相连陆地标记为已访问。',
     code: `/**
- * 从指定位置开始标记整座岛屿。
+ * 使用显式栈从指定位置迭代标记整座岛屿，避免递归调用栈溢出。
  */
 function floodIsland(grid: string[][], row: number, column: number): void {
   if (
@@ -27,11 +27,29 @@ function floodIsland(grid: string[][], row: number, column: number): void {
     return;
   }
 
+  const stack: Array<[number, number]> = [[row, column]];
+  const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
   grid[row][column] = '0';
-  floodIsland(grid, row - 1, column);
-  floodIsland(grid, row + 1, column);
-  floodIsland(grid, row, column - 1);
-  floodIsland(grid, row, column + 1);
+
+  while (stack.length > 0) {
+    const [currentRow, currentColumn] = stack.pop() as [number, number];
+
+    for (const [rowOffset, columnOffset] of directions) {
+      const nextRow = currentRow + rowOffset;
+      const nextColumn = currentColumn + columnOffset;
+
+      if (
+        nextRow >= 0 &&
+        nextRow < grid.length &&
+        nextColumn >= 0 &&
+        nextColumn < grid[nextRow].length &&
+        grid[nextRow][nextColumn] === '1'
+      ) {
+        grid[nextRow][nextColumn] = '0';
+        stack.push([nextRow, nextColumn]);
+      }
+    }
+  }
 }
 
 /**
@@ -56,7 +74,8 @@ function countIslands(grid: string[][]): number {
   return count;
 }`,
     pitfalls: [
-      '递归前必须同时检查行列边界和单元格状态。',
+      '超大连通块应使用显式栈执行 DFS，避免递归深度导致调用栈溢出。',
+      '陆地应在压入栈时立即标记，避免同一位置被相邻单元格重复压栈。',
       '原地标记会修改输入；调用方需要保留网格时应先复制。',
     ],
     complexity: {

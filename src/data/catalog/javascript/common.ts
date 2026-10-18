@@ -252,24 +252,24 @@ function memoizeFunction<Args extends unknown[], Result>(
       '发布订阅通过事件中心隔离消息生产者与消费者，适合一对多通知，但也增加了数据流追踪成本。',
     approach:
       'Map 保存事件名到监听器集合。订阅时加入集合并返回取消函数；发布时复制集合后依次调用，避免遍历期间修改。',
-    code: `type EventListener<T> = (payload: T) => void;
+    code: `type EventHandler<T> = (payload: T) => void;
 
 class EventBus<EventMap extends Record<string, unknown>> {
-  private listeners = new Map<keyof EventMap, Set<EventListener<unknown>>>();
+  private listeners = new Map<keyof EventMap, Set<EventHandler<unknown>>>();
 
   /** 订阅事件并返回取消订阅函数。 */
   subscribe<Key extends keyof EventMap>(
     eventName: Key,
-    listener: EventListener<EventMap[Key]>,
+    listener: EventHandler<EventMap[Key]>,
   ): () => void {
     const listeners =
-      this.listeners.get(eventName) ?? new Set<EventListener<unknown>>();
-    listeners.add(listener as EventListener<unknown>);
+      this.listeners.get(eventName) ?? new Set<EventHandler<unknown>>();
+    listeners.add(listener as EventHandler<unknown>);
     this.listeners.set(eventName, listeners);
 
     /** 移除本次注册的监听器。 */
     function unsubscribe(): void {
-      listeners.delete(listener as EventListener<unknown>);
+      listeners.delete(listener as EventHandler<unknown>);
     }
 
     return unsubscribe;
@@ -403,10 +403,11 @@ function deepClone<T>(value: T, seen = new WeakMap<object, unknown>()): T {
   const clone: Record<PropertyKey, unknown> | unknown[] = Array.isArray(value)
     ? []
     : Object.create(Object.getPrototypeOf(value));
+  const target = clone as Record<PropertyKey, unknown>;
   seen.set(value, clone);
 
   for (const key of Reflect.ownKeys(value)) {
-    clone[key as keyof typeof clone] = deepClone(
+    target[key] = deepClone(
       value[key as keyof T],
       seen,
     );
