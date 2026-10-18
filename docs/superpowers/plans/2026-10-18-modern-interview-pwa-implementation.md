@@ -6,7 +6,7 @@
 
 **Architecture:** Modern.js owns the application runtime and delegates builds to its integrated Rsbuild/Rspack toolchain. `src/modern.routes.ts` is the only route table, `src/data/questions.ts` is the only content catalog, and focused React components render the home and detail pages. SSG emits concrete HTML routes while an Rsbuild PWA plugin adds installability and offline caching.
 
-**Tech Stack:** Modern.js 3.10, React 19, TypeScript 5.9, Rsbuild/Rspack, Vitest, React Testing Library, rsbuild-plugin-pwa, pnpm
+**Tech Stack:** Modern.js 3.10, React 19, TypeScript 5.9, Rsbuild/Rspack, Vitest 2.1, React Testing Library, rsbuild-plugin-pwa, pnpm
 
 ---
 
@@ -17,10 +17,11 @@
 ├── .github/workflows/deploy.yml
 ├── modern.config.ts
 ├── package.json
-├── public/
-│   ├── app-icon-192.png
-│   └── app-icon-512.png
+├── build/copyAppIconsPlugin.ts
 ├── src/
+│   ├── assets/
+│   │   ├── app-icon-192.png
+│   │   └── app-icon-512.png
 │   ├── components/
 │   │   ├── AppHeader.tsx
 │   │   ├── CodeBlock.tsx
@@ -86,7 +87,7 @@ Use Modern.js 3.10 packages at the same version and React 19:
     "jsdom": "^30.1.3",
     "rsbuild-plugin-pwa": "^2.10.0",
     "typescript": "^5.9.3",
-    "vitest": "^5.0.5"
+    "vitest": "^2.1.9"
   }
 }
 ```
@@ -215,6 +216,7 @@ git commit -m "feat: add typed interview question content"
 
 **Files:**
 - Create: `src/modern.routes.ts`
+- Create: `src/routes/README.md`
 - Create: `src/layouts/AppLayout.tsx`
 - Create: `src/pages/HomePage.tsx`
 - Create: `src/pages/QuestionPage.tsx`
@@ -236,6 +238,10 @@ export default defineRoutes(({ layout, page, $ }) => [
   ]),
 ]);
 ```
+
+Keep `src/routes/README.md` as an entry marker because Modern.js requires a
+router-enabled entry directory. Do not add route components under that
+directory.
 
 - [ ] **Step 2: Add the layout and route page shells**
 
@@ -404,8 +410,9 @@ git commit -m "feat: add question reading experience"
 
 **Files:**
 - Modify: `modern.config.ts`
-- Create: `public/app-icon-192.png`
-- Create: `public/app-icon-512.png`
+- Create: `src/assets/app-icon-192.png`
+- Create: `src/assets/app-icon-512.png`
+- Create: `build/copyAppIconsPlugin.ts`
 - Create: `.github/workflows/deploy.yml`
 - Create: `README.md`
 
@@ -430,9 +437,11 @@ Register `pluginPWA` through `builderPlugins`. Configure a standalone manifest, 
 
 - [ ] **Step 3: Add app icons**
 
-Generate square bitmap icons with a high-contrast code-bracket mark, then verify their exact dimensions:
+Generate square bitmap icons with a high-contrast code-bracket mark. Copy them
+to the client output root through a local Rsbuild plugin, then verify their
+exact dimensions:
 
-Run: `sips -g pixelWidth -g pixelHeight public/app-icon-192.png public/app-icon-512.png`
+Run: `sips -g pixelWidth -g pixelHeight src/assets/app-icon-192.png src/assets/app-icon-512.png`
 
 Expected: one image is 192x192 and the other is 512x512.
 
@@ -453,7 +462,7 @@ Expected: all checks pass and the build contains the manifest, service worker, i
 - [ ] **Step 7: Commit**
 
 ```bash
-git add modern.config.ts public .github/workflows/deploy.yml README.md
+git add modern.config.ts build src/assets .github/workflows/deploy.yml README.md
 git commit -m "feat: add offline PWA deployment"
 ```
 

@@ -30,11 +30,11 @@
 - `rsbuild-plugin-pwa` 通过 Modern.js 的 `builderPlugins` 接入，生成 Web App Manifest、Service Worker 和离线缓存。
 - Vitest、React Testing Library 和 jsdom 执行数据与组件测试。
 
-`modern.config.ts` 是唯一构建配置入口。项目不再保留 `.vitepress/`、VitePress 依赖或 Vite PWA 插件。
+`modern.config.ts` 是唯一构建配置入口。一个本地 Rsbuild 插件负责将 `src/assets/` 中的 PWA 图标复制到客户端产物根目录。项目不再保留 `.vitepress/`、VitePress 依赖或 Vite PWA 插件。
 
 ## 路由设计
 
-所有路由集中定义在 `src/modern.routes.ts`。该文件直接返回配置路由，不合并 `fileRoutes`，因此目录结构不会隐式生成路由。
+所有路由集中定义在 `src/modern.routes.ts`。该文件直接返回配置路由，不合并 `fileRoutes`，因此目录结构不会隐式生成路由。`src/routes/` 仅包含入口说明文件，用于满足 Modern.js 的路由应用识别，不包含任何约定式页面。
 
 路由表包含：
 
