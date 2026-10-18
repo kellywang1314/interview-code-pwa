@@ -69,6 +69,27 @@ describe('catalog', () => {
     });
   });
 
+  it('preserves the migrated two-sum tags', () => {
+    expect(findCatalogItemById('two-sum')?.tags).toEqual([
+      '哈希表',
+      '一次遍历',
+    ]);
+  });
+
+  it('preserves the migrated reverse-linked-list tags', () => {
+    expect(findCatalogItemById('reverse-linked-list')?.tags).toEqual([
+      '双指针',
+      '迭代',
+    ]);
+  });
+
+  it('preserves the migrated level-order-traversal tags', () => {
+    expect(findCatalogItemById('level-order-traversal')?.tags).toEqual([
+      '广度优先',
+      '队列',
+    ]);
+  });
+
   it('points every JavaScript entry to the specified source repository', () => {
     findCatalogItemsByDomain('javascript').forEach(item => {
       expect(item.sourceUrl).toMatch(

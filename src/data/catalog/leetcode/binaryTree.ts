@@ -7,7 +7,7 @@ export const binaryTreeItems = [
     categoryId: 'binary-tree',
     title: '二叉树层序遍历',
     difficulty: '中等',
-    tags: ['二叉树', '广度优先', '队列'],
+    tags: ['广度优先', '队列'],
     summary: '按层消费队列中的节点，并收集每一层的访问结果。',
     description:
       '给定二叉树的根节点 root，返回节点值的层序遍历结果，即从左到右逐层访问所有节点。',

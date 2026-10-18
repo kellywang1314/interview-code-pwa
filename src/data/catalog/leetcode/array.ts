@@ -7,7 +7,7 @@ export const arrayItems = [
     categoryId: 'array',
     title: '两数之和',
     difficulty: '简单',
-    tags: ['数组', '哈希表'],
+    tags: ['哈希表', '一次遍历'],
     summary: '用哈希表记录已访问元素，在一次遍历中找到目标组合。',
     description:
       '给定整数数组 nums 和目标值 target，返回和为目标值的两个元素下标。同一个元素不能重复使用。',

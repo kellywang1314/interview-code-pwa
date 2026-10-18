@@ -7,7 +7,7 @@ export const linkedListItems = [
     categoryId: 'linked-list',
     title: '反转链表',
     difficulty: '简单',
-    tags: ['链表', '双指针', '迭代'],
+    tags: ['双指针', '迭代'],
     summary: '维护前驱与当前节点，逐个反转链表指针方向。',
     description: '给定单链表的头节点 head，反转链表并返回新的头节点。',
     approach:
