@@ -1,12 +1,39 @@
-import type { QuestionGroup } from '../data/questions';
+import {
+  catalogSections,
+  type CatalogItem,
+} from '../data/catalog';
 import { QuestionListItem } from './QuestionListItem';
 
 interface QuestionListProps {
-  groups: QuestionGroup[];
+  items: CatalogItem[];
 }
 
-/** Renders question groups in their catalog order. */
-export function QuestionList({ groups }: QuestionListProps) {
+/** 按目录定义顺序对筛选后的条目进行分类。 */
+function groupCatalogItems(items: CatalogItem[]) {
+  const itemIds = new Set(items.map(item => item.id));
+
+  return catalogSections.flatMap(section =>
+    section.categories.flatMap(category => {
+      const categoryItems = category.items.filter(item =>
+        itemIds.has(item.id),
+      );
+
+      return categoryItems.length > 0
+        ? [
+            {
+              id: category.id,
+              label: category.label,
+              items: categoryItems,
+            },
+          ]
+        : [];
+    }),
+  );
+}
+
+/** Renders filtered catalog items grouped in their catalog order. */
+export function QuestionList({ items }: QuestionListProps) {
+  const groups = groupCatalogItems(items);
   let sequence = 0;
 
   return (
@@ -14,15 +41,15 @@ export function QuestionList({ groups }: QuestionListProps) {
       {groups.map(group => (
         <section
           className="question-group"
-          id={group.categoryId}
-          key={group.categoryId}
+          id={group.id}
+          key={group.id}
         >
           <header className="question-group__header">
-            <h2>{group.category}</h2>
-            <span>{group.questions.length} 题</span>
+            <h2>{group.label}</h2>
+            <span>{group.items.length} 题</span>
           </header>
           <ol className="question-group__list">
-            {group.questions.map(question => {
+            {group.items.map(question => {
               sequence += 1;
 
               return (

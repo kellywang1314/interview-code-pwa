@@ -1,6 +1,6 @@
 import { Outlet } from '@modern-js/runtime/router';
 
-import { AppHeader } from '../components/AppHeader';
+import { CatalogLayout } from '../components/catalog/CatalogLayout';
 import '../styles/global.css';
 
 /** Renders the shared application shell around configured routes. */
@@ -10,14 +10,17 @@ export default function AppLayout() {
       <a className="skip-link" href="#main-content">
         跳到正文
       </a>
-      <AppHeader />
-      <div id="main-content" tabIndex={-1}>
-        <Outlet />
-      </div>
-      <footer className="app-footer">
-        <p>为有限时间准备的高密度代码笔记。</p>
-        <span>Modern.js · React · Offline</span>
-      </footer>
+      <CatalogLayout>
+        <div className="catalog-route-column">
+          <div id="main-content" tabIndex={-1}>
+            <Outlet />
+          </div>
+          <footer className="app-footer">
+            <p>为有限时间准备的高密度代码笔记。</p>
+            <span>Modern.js · React · Offline</span>
+          </footer>
+        </div>
+      </CatalogLayout>
     </div>
   );
 }
