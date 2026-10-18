@@ -3,14 +3,14 @@ import { ssgPlugin } from '@modern-js/plugin-ssg';
 import { pluginPWA } from 'rsbuild-plugin-pwa';
 
 import { copyAppIconsPlugin } from './build/copyAppIconsPlugin';
-import { questions } from './src/data/questions';
+import { catalogItems } from './src/data/catalog';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const basePath = isProduction ? '/interview-code-pwa' : '';
 const baseUrl = `${basePath}/`;
 const ssgRoutes = [
   '/',
-  ...questions.map(question => `/questions/${question.id}`),
+  ...catalogItems.map(item => `/questions/${item.id}`),
 ];
 const routeRevision =
   process.env.GITHUB_SHA ?? process.env.npm_package_version ?? 'development';

@@ -798,6 +798,18 @@ a {
   line-height: 1.8;
 }
 
+.source-link {
+  display: inline-flex;
+  min-height: 44px;
+  border-bottom: 2px solid var(--accent);
+  align-items: center;
+  gap: 7px;
+  color: var(--accent-strong);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .code-block {
   overflow: hidden;
   border: 1px solid #36413d;
