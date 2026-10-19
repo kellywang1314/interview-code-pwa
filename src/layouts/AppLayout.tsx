@@ -1,7 +1,6 @@
 import { Outlet } from '@modern-js/runtime/router';
 
 import { CatalogLayout } from '../components/catalog/CatalogLayout';
-import '../styles/global.css';
 
 /** Renders the shared application shell around configured routes. */
 export default function AppLayout() {
