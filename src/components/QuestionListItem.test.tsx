@@ -23,7 +23,7 @@ function createCatalogItem(): CatalogItem {
 }
 
 describe('QuestionListItem', () => {
-  it('renders a compact searchable row without summary or tags', () => {
+  it('renders a compact searchable row with purpose summary but no tags', () => {
     render(
       <MemoryRouter>
         <QuestionListItem
@@ -39,8 +39,8 @@ describe('QuestionListItem', () => {
     ).toBeVisible();
     expect(screen.getByText('中等')).toBeVisible();
     expect(
-      screen.queryByText('展示 Promise.all 的并发执行和失败短路行为。'),
-    ).not.toBeInTheDocument();
+      screen.getByText('展示 Promise.all 的并发执行和失败短路行为。'),
+    ).toBeVisible();
     expect(screen.queryByText('Promise')).not.toBeInTheDocument();
     expect(screen.queryByText('并发')).not.toBeInTheDocument();
   });
