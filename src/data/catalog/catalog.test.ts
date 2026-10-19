@@ -10,6 +10,32 @@ import {
 
 const javascriptSourcePrefix =
   'https://github.com/kellywang1314/sourceCode/';
+const hot100ArrayEntryIds = [
+  'two-sum',
+  'longest-consecutive-sequence',
+  'move-zeroes',
+  'container-with-most-water',
+  'three-sum',
+  'trapping-rain-water',
+  'subarray-sum-equals-k',
+  'sliding-window-maximum',
+  'maximum-subarray',
+  'merge-intervals',
+  'rotate-array',
+  'product-of-array-except-self',
+  'first-missing-positive',
+  'set-matrix-zeroes',
+  'spiral-matrix',
+  'rotate-image',
+  'search-a-2d-matrix-ii',
+];
+const hot100StringEntryIds = [
+  'longest-substring-without-repeating-characters',
+  'find-all-anagrams-in-a-string',
+  'minimum-window-substring',
+  'longest-palindromic-substring',
+  'group-anagrams',
+];
 
 describe('catalog', () => {
   it('contains two domains and eight categories in the planned order', () => {
@@ -33,9 +59,18 @@ describe('catalog', () => {
     ]);
   });
 
-  it('contains 36 entries split evenly between both domains', () => {
-    expect(catalogItems).toHaveLength(36);
-    expect(findCatalogItemsByDomain('leetcode')).toHaveLength(18);
+  it('contains the expanded Hot 100 array and string entries', () => {
+    expect(findCatalogItemsByCategory('array').map(item => item.id)).toEqual(
+      hot100ArrayEntryIds,
+    );
+    expect(findCatalogItemsByCategory('string').map(item => item.id)).toEqual(
+      hot100StringEntryIds,
+    );
+  });
+
+  it('contains 52 entries with the expanded LeetCode domain', () => {
+    expect(catalogItems).toHaveLength(52);
+    expect(findCatalogItemsByDomain('leetcode')).toHaveLength(34);
     expect(findCatalogItemsByDomain('javascript')).toHaveLength(18);
   });
 
@@ -111,7 +146,7 @@ describe('catalog', () => {
     expect(findCatalogItemById('missing-entry')).toBeUndefined();
     expect(
       findCatalogItemsByCategory('array').map(item => item.id),
-    ).toEqual(['two-sum', 'three-sum', 'merge-intervals']);
+    ).toEqual(hot100ArrayEntryIds);
     expect(
       findCatalogItemsByCategory('promise').every(
         item => item.domainId === 'javascript',

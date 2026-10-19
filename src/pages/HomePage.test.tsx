@@ -75,11 +75,11 @@ describe('HomePage', () => {
 
     fireEvent.click(
       within(navigation).getByRole('button', {
-        name: '字符串 3',
+        name: '字符串 5',
       }),
     );
 
-    expect(screen.getByText('3 个结果')).toBeVisible();
+    expect(screen.getByText('5 个结果')).toBeVisible();
     expect(
       screen.getByRole('link', {
         name: /无重复字符的最长子串/,

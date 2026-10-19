@@ -45,6 +45,154 @@ function lengthOfLongestSubstring(value: string): number {
     },
   },
   {
+    id: 'find-all-anagrams-in-a-string',
+    domainId: 'leetcode',
+    categoryId: 'string',
+    title: '找到字符串中所有字母异位词',
+    difficulty: '中等',
+    tags: ['字符串', '滑动窗口', '哈希表'],
+    summary: '固定窗口长度，维护字符频次差异来判断异位词。',
+    description:
+      '给定字符串 s 和 p，找到 s 中所有 p 的字母异位词子串，并返回这些子串的起始下标。',
+    approach:
+      '窗口长度固定为 p.length。先统计 p 的字符需求，再滑动 s 的窗口：右端进入字符减少需求，左端移出字符恢复需求，用 matched 记录已满足字符数量。',
+    code: `/**
+ * 返回文本中所有目标字符串字母异位词的起始下标。
+ */
+function findAnagrams(text: string, pattern: string): number[] {
+  if (pattern.length > text.length) {
+    return [];
+  }
+
+  const need = new Map<string, number>();
+  const result: number[] = [];
+
+  for (const character of pattern) {
+    need.set(character, (need.get(character) ?? 0) + 1);
+  }
+
+  let matched = 0;
+
+  for (let right = 0; right < text.length; right += 1) {
+    const entering = text[right];
+
+    if (need.has(entering)) {
+      const nextCount = (need.get(entering) ?? 0) - 1;
+      need.set(entering, nextCount);
+
+      if (nextCount >= 0) {
+        matched += 1;
+      }
+    }
+
+    if (right >= pattern.length) {
+      const leaving = text[right - pattern.length];
+
+      if (need.has(leaving)) {
+        const nextCount = (need.get(leaving) ?? 0) + 1;
+        need.set(leaving, nextCount);
+
+        if (nextCount > 0) {
+          matched -= 1;
+        }
+      }
+    }
+
+    if (matched === pattern.length) {
+      result.push(right - pattern.length + 1);
+    }
+  }
+
+  return result;
+}`,
+    pitfalls: [
+      '窗口长度必须固定为 p.length，不能只靠左右指针自由收缩。',
+      '字符移出窗口时，如果恢复后需求量大于 0，才说明一个匹配字符丢失。',
+    ],
+    complexity: {
+      time: 'O(n + m)',
+      space: 'O(m)',
+    },
+  },
+  {
+    id: 'minimum-window-substring',
+    domainId: 'leetcode',
+    categoryId: 'string',
+    title: '最小覆盖子串',
+    difficulty: '困难',
+    tags: ['字符串', '滑动窗口', '哈希表'],
+    summary: '右扩直到覆盖所有需求，再左缩得到最短窗口。',
+    description:
+      '给定字符串 s 和 t，返回 s 中覆盖 t 所有字符及其数量的最小子串；若不存在则返回空字符串。',
+    approach:
+      '统计 t 的字符需求。右指针扩张窗口并记录已满足的字符个数；当窗口已覆盖 t 时，持续移动左指针收缩，并更新最短答案。',
+    code: `/**
+ * 返回文本中覆盖目标全部字符的最短子串。
+ */
+function minWindow(text: string, target: string): string {
+  if (target.length === 0 || target.length > text.length) {
+    return '';
+  }
+
+  const need = new Map<string, number>();
+
+  for (const character of target) {
+    need.set(character, (need.get(character) ?? 0) + 1);
+  }
+
+  let left = 0;
+  let matched = 0;
+  let bestStart = 0;
+  let bestLength = Number.POSITIVE_INFINITY;
+
+  for (let right = 0; right < text.length; right += 1) {
+    const entering = text[right];
+
+    if (need.has(entering)) {
+      const nextCount = (need.get(entering) ?? 0) - 1;
+      need.set(entering, nextCount);
+
+      if (nextCount >= 0) {
+        matched += 1;
+      }
+    }
+
+    while (matched === target.length) {
+      const windowLength = right - left + 1;
+
+      if (windowLength < bestLength) {
+        bestStart = left;
+        bestLength = windowLength;
+      }
+
+      const leaving = text[left];
+      left += 1;
+
+      if (need.has(leaving)) {
+        const nextCount = (need.get(leaving) ?? 0) + 1;
+        need.set(leaving, nextCount);
+
+        if (nextCount > 0) {
+          matched -= 1;
+        }
+      }
+    }
+  }
+
+  return bestLength === Number.POSITIVE_INFINITY
+    ? ''
+    : text.slice(bestStart, bestStart + bestLength);
+}`,
+    pitfalls: [
+      '覆盖条件要按字符数量判断，不能只看字符种类是否出现。',
+      '收缩窗口时先记录答案再移出左端字符，否则会漏掉刚好合法的窗口。',
+    ],
+    complexity: {
+      time: 'O(n + m)',
+      space: 'O(m)',
+    },
+  },
+  {
     id: 'longest-palindromic-substring',
     domainId: 'leetcode',
     categoryId: 'string',
