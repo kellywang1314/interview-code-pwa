@@ -12,18 +12,15 @@ const javascriptSourcePrefix =
   'https://github.com/kellywang1314/sourceCode/';
 const hot100ArrayEntryIds = [
   'two-sum',
-  'longest-consecutive-sequence',
   'move-zeroes',
+  'longest-consecutive-sequence',
   'container-with-most-water',
   'three-sum',
-  'trapping-rain-water',
   'subarray-sum-equals-k',
-  'sliding-window-maximum',
   'maximum-subarray',
   'merge-intervals',
   'rotate-array',
   'product-of-array-except-self',
-  'first-missing-positive',
   'set-matrix-zeroes',
   'spiral-matrix',
   'rotate-image',
@@ -32,7 +29,6 @@ const hot100ArrayEntryIds = [
 const hot100StringEntryIds = [
   'longest-substring-without-repeating-characters',
   'find-all-anagrams-in-a-string',
-  'minimum-window-substring',
   'longest-palindromic-substring',
   'group-anagrams',
 ];
@@ -41,14 +37,12 @@ const hot100LinkedListEntryIds = [
   'reverse-linked-list',
   'palindrome-linked-list',
   'linked-list-cycle',
-  'linked-list-cycle-ii',
   'merge-two-sorted-lists',
+  'linked-list-cycle-ii',
   'add-two-numbers',
   'remove-nth-node-from-end-of-list',
   'swap-nodes-in-pairs',
-  'reverse-nodes-in-k-group',
   'copy-list-with-random-pointer',
-  'merge-k-sorted-lists',
   'lru-cache',
 ];
 const hot100TraversalEntryIds = [
@@ -63,8 +57,13 @@ const hot100TraversalEntryIds = [
   'generate-parentheses',
   'word-search',
   'palindrome-partitioning',
-  'n-queens',
 ];
+
+const difficultyOrder = {
+  简单: 0,
+  中等: 1,
+  困难: 2,
+};
 
 describe('catalog', () => {
   it('contains two domains and eight categories in the planned order', () => {
@@ -106,10 +105,27 @@ describe('catalog', () => {
     ).toEqual(hot100TraversalEntryIds);
   });
 
-  it('contains 71 entries with the expanded LeetCode domain', () => {
-    expect(catalogItems).toHaveLength(71);
-    expect(findCatalogItemsByDomain('leetcode')).toHaveLength(53);
-    expect(findCatalogItemsByDomain('javascript')).toHaveLength(18);
+  it('contains 60 easy and medium entries after hiding hard entries', () => {
+    expect(catalogItems).toHaveLength(60);
+    expect(findCatalogItemsByDomain('leetcode')).toHaveLength(46);
+    expect(findCatalogItemsByDomain('javascript')).toHaveLength(14);
+    expect(catalogItems.every(item => item.difficulty !== '困难')).toBe(
+      true,
+    );
+  });
+
+  it('sorts entries by easy then medium difficulty in every category', () => {
+    catalogSections.forEach(section => {
+      section.categories.forEach(category => {
+        const categoryDifficultyOrder = category.items.map(
+          item => difficultyOrder[item.difficulty],
+        );
+
+        expect(categoryDifficultyOrder).toEqual(
+          [...categoryDifficultyOrder].sort((left, right) => left - right),
+        );
+      });
+    });
   });
 
   it('keeps every entry id unique', () => {

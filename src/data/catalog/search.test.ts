@@ -11,7 +11,7 @@ describe('catalog search', () => {
     ['promise.all', 'promise-all'],
     ['链表', 'reverse-linked-list'],
     ['BFS / DFS', 'number-of-islands'],
-    ['JAVASCRIPT', 'promise-core'],
+    ['JAVASCRIPT', 'promise-all'],
   ])('searches "%s" across catalog metadata', (query, itemId) => {
     expect(
       searchCatalog(catalogItems, query).map(item => item.id),
@@ -38,7 +38,7 @@ describe('catalog search', () => {
       scope: 'current',
     });
 
-    expect(result).toHaveLength(13);
+    expect(result).toHaveLength(11);
     expect(
       result.every(item => item.categoryId === 'linked-list'),
     ).toBe(true);

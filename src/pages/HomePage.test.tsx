@@ -40,7 +40,7 @@ describe('HomePage', () => {
     expect(
       screen.getByRole('heading', { name: 'Promise' }),
     ).toBeVisible();
-    expect(screen.getByText('8 个结果')).toBeVisible();
+    expect(screen.getByText('6 个结果')).toBeVisible();
     expect(
       screen.getByRole('link', { name: /Promise\.all/ }),
     ).toBeVisible();
@@ -75,11 +75,11 @@ describe('HomePage', () => {
 
     fireEvent.click(
       within(navigation).getByRole('button', {
-        name: '字符串 5',
+        name: '字符串 4',
       }),
     );
 
-    expect(screen.getByText('5 个结果')).toBeVisible();
+    expect(screen.getByText('4 个结果')).toBeVisible();
     expect(
       screen.getByRole('link', {
         name: /无重复字符的最长子串/,
