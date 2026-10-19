@@ -1,10 +1,10 @@
 import { Link } from '@modern-js/runtime/router';
 
-import type { Question } from '../data/questions';
+import type { CatalogItem } from '../data/catalog';
 import { QuestionMeta } from './QuestionMeta';
 
 interface QuestionListItemProps {
-  question: Question;
+  question: CatalogItem;
   sequence: number;
 }
 

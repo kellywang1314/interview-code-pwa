@@ -1,4 +1,4 @@
-import type { QuestionDifficulty } from '../data/questions';
+import type { QuestionDifficulty } from '../data/catalog';
 
 interface QuestionMetaProps {
   difficulty: QuestionDifficulty;

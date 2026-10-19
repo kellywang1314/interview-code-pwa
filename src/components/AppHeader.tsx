@@ -1,6 +1,10 @@
 import { Link } from '@modern-js/runtime/router';
-import { Code2, Moon, Sun } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Code2, Menu, Moon, Search, Sun } from 'lucide-react';
+import {
+  type RefObject,
+  useEffect,
+  useState,
+} from 'react';
 
 import {
   applyTheme,
@@ -9,8 +13,18 @@ import {
 } from '../utils/theme';
 import { InstallPrompt } from './InstallPrompt';
 
+interface AppHeaderProps {
+  drawerTriggerRef?: RefObject<HTMLButtonElement | null>;
+  onFocusSearch?: () => void;
+  onOpenCatalog?: () => void;
+}
+
 /** Renders persistent application navigation and controls. */
-export function AppHeader() {
+export function AppHeader({
+  drawerTriggerRef,
+  onFocusSearch,
+  onOpenCatalog,
+}: AppHeaderProps = {}) {
   const [theme, setTheme] = useState<ColorTheme>(() => {
     if (typeof window === 'undefined') {
       return 'light';
@@ -44,6 +58,29 @@ export function AppHeader() {
           <span>代码速查</span>
         </Link>
         <div className="app-header__tools">
+          {onOpenCatalog ? (
+            <button
+              aria-label="打开分类导航"
+              className="icon-button app-header__mobile-tool"
+              onClick={onOpenCatalog}
+              ref={drawerTriggerRef}
+              title="打开分类导航"
+              type="button"
+            >
+              <Menu aria-hidden="true" size={19} />
+            </button>
+          ) : null}
+          {onFocusSearch ? (
+            <button
+              aria-label="搜索题库"
+              className="icon-button app-header__mobile-tool"
+              onClick={onFocusSearch}
+              title="搜索题库"
+              type="button"
+            >
+              <Search aria-hidden="true" size={18} />
+            </button>
+          ) : null}
           <InstallPrompt />
           <button
             aria-label={nextThemeLabel}
