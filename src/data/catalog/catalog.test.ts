@@ -58,6 +58,22 @@ const hot100TraversalEntryIds = [
   'word-search',
   'palindrome-partitioning',
 ];
+const hot100BinaryTreeEntryIds = [
+  'binary-tree-inorder-traversal',
+  'maximum-depth-of-binary-tree',
+  'invert-binary-tree',
+  'symmetric-tree',
+  'diameter-of-binary-tree',
+  'convert-sorted-array-to-binary-search-tree',
+  'level-order-traversal',
+  'validate-binary-search-tree',
+  'kth-smallest-element-in-a-bst',
+  'binary-tree-right-side-view',
+  'flatten-binary-tree-to-linked-list',
+  'construct-binary-tree-from-preorder-and-inorder-traversal',
+  'path-sum-iii',
+  'lowest-common-ancestor-of-binary-tree',
+];
 
 const difficultyOrder = {
   简单: 0,
@@ -105,9 +121,15 @@ describe('catalog', () => {
     ).toEqual(hot100TraversalEntryIds);
   });
 
-  it('contains 60 easy and medium entries after hiding hard entries', () => {
-    expect(catalogItems).toHaveLength(60);
-    expect(findCatalogItemsByDomain('leetcode')).toHaveLength(46);
+  it('contains the expanded Hot 100 binary tree entries', () => {
+    expect(
+      findCatalogItemsByCategory('binary-tree').map(item => item.id),
+    ).toEqual(hot100BinaryTreeEntryIds);
+  });
+
+  it('contains 71 easy and medium entries after hiding hard entries', () => {
+    expect(catalogItems).toHaveLength(71);
+    expect(findCatalogItemsByDomain('leetcode')).toHaveLength(57);
     expect(findCatalogItemsByDomain('javascript')).toHaveLength(14);
     expect(catalogItems.every(item => item.difficulty !== '困难')).toBe(
       true,
