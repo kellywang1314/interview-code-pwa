@@ -24,10 +24,9 @@ export function QuestionListItem({
         </span>
         <span className="question-row__body">
           <strong className="question-row__title">{question.title}</strong>
-          <span className="question-row__summary">{question.summary}</span>
           <QuestionMeta
             difficulty={question.difficulty}
-            tags={question.tags}
+            tags={[]}
           />
         </span>
         <span aria-hidden="true" className="question-row__arrow">
