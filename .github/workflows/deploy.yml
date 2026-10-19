@@ -47,6 +47,11 @@ jobs:
           MODERNJS_DEPLOY: ghPages
         run: pnpm exec modern deploy
 
+      - name: Flatten SSG routes for Pages
+        run: |
+          cp -R .output/html/index/. .output/
+          test -f .output/questions/promise-all/index.html
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
