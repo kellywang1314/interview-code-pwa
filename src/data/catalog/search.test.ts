@@ -38,7 +38,7 @@ describe('catalog search', () => {
       scope: 'current',
     });
 
-    expect(result).toHaveLength(3);
+    expect(result).toHaveLength(13);
     expect(
       result.every(item => item.categoryId === 'linked-list'),
     ).toBe(true);

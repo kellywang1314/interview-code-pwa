@@ -36,6 +36,35 @@ const hot100StringEntryIds = [
   'longest-palindromic-substring',
   'group-anagrams',
 ];
+const hot100LinkedListEntryIds = [
+  'intersection-of-two-linked-lists',
+  'reverse-linked-list',
+  'palindrome-linked-list',
+  'linked-list-cycle',
+  'linked-list-cycle-ii',
+  'merge-two-sorted-lists',
+  'add-two-numbers',
+  'remove-nth-node-from-end-of-list',
+  'swap-nodes-in-pairs',
+  'reverse-nodes-in-k-group',
+  'copy-list-with-random-pointer',
+  'merge-k-sorted-lists',
+  'lru-cache',
+];
+const hot100TraversalEntryIds = [
+  'number-of-islands',
+  'rotting-oranges',
+  'course-schedule',
+  'implement-trie-prefix-tree',
+  'permutations',
+  'subsets',
+  'letter-combinations-of-a-phone-number',
+  'combination-sum',
+  'generate-parentheses',
+  'word-search',
+  'palindrome-partitioning',
+  'n-queens',
+];
 
 describe('catalog', () => {
   it('contains two domains and eight categories in the planned order', () => {
@@ -68,9 +97,18 @@ describe('catalog', () => {
     );
   });
 
-  it('contains 52 entries with the expanded LeetCode domain', () => {
-    expect(catalogItems).toHaveLength(52);
-    expect(findCatalogItemsByDomain('leetcode')).toHaveLength(34);
+  it('contains the expanded Hot 100 linked list and DFS entries', () => {
+    expect(
+      findCatalogItemsByCategory('linked-list').map(item => item.id),
+    ).toEqual(hot100LinkedListEntryIds);
+    expect(
+      findCatalogItemsByCategory('traversal').map(item => item.id),
+    ).toEqual(hot100TraversalEntryIds);
+  });
+
+  it('contains 71 entries with the expanded LeetCode domain', () => {
+    expect(catalogItems).toHaveLength(71);
+    expect(findCatalogItemsByDomain('leetcode')).toHaveLength(53);
     expect(findCatalogItemsByDomain('javascript')).toHaveLength(18);
   });
 

@@ -41,7 +41,7 @@ describe('CatalogLayout', () => {
 
     fireEvent.click(
       within(navigation).getByRole('button', {
-        name: '链表 3',
+        name: '链表 13',
       }),
     );
 
