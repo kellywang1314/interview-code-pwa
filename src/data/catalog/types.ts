@@ -1,4 +1,4 @@
-export type CatalogDomainId = 'leetcode' | 'javascript';
+export type CatalogDomainId = 'leetcode' | 'javascript' | 'ai';
 
 export type CatalogCategoryId =
   | 'array'
@@ -8,7 +8,8 @@ export type CatalogCategoryId =
   | 'binary-tree'
   | 'sort'
   | 'promise'
-  | 'common';
+  | 'common'
+  | 'ai-common';
 
 export type QuestionDifficulty = '简单' | '中等' | '困难';
 

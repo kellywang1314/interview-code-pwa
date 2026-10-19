@@ -1,3 +1,4 @@
+import { aiCommonItems } from './ai/common';
 import { commonItems } from './javascript/common';
 import { promiseItems } from './javascript/promise';
 import { arrayItems } from './leetcode/array';
@@ -93,6 +94,17 @@ export const catalogSections: CatalogSection[] = [
         items: createDisplayItems(promiseItems),
       },
       { id: 'common', label: 'Common', items: createDisplayItems(commonItems) },
+    ],
+  },
+  {
+    id: 'ai',
+    label: 'AI',
+    categories: [
+      {
+        id: 'ai-common',
+        label: '常问问题',
+        items: createDisplayItems(aiCommonItems),
+      },
     ],
   },
 ];

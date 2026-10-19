@@ -12,6 +12,8 @@ describe('catalog search', () => {
     ['链表', 'reverse-linked-list'],
     ['BFS / DFS', 'number-of-islands'],
     ['JAVASCRIPT', 'promise-all'],
+    ['RAG', 'rag-core-flow'],
+    ['Embedding', 'embedding-vector-search'],
   ])('searches "%s" across catalog metadata', (query, itemId) => {
     expect(
       searchCatalog(catalogItems, query).map(item => item.id),

@@ -74,6 +74,16 @@ const hot100BinaryTreeEntryIds = [
   'path-sum-iii',
   'lowest-common-ancestor-of-binary-tree',
 ];
+const aiCommonEntryIds = [
+  'prompt-engineering-patterns',
+  'llm-context-window',
+  'rag-core-flow',
+  'embedding-vector-search',
+  'function-calling',
+  'ai-agent-loop',
+  'hallucination-mitigation',
+  'fine-tuning-vs-rag',
+];
 
 const difficultyOrder = {
   简单: 0,
@@ -82,10 +92,11 @@ const difficultyOrder = {
 };
 
 describe('catalog', () => {
-  it('contains two domains and eight categories in the planned order', () => {
+  it('contains three domains and nine categories in the planned order', () => {
     expect(catalogSections.map(section => section.id)).toEqual([
       'leetcode',
       'javascript',
+      'ai',
     ]);
     expect(
       catalogSections.flatMap(section =>
@@ -100,6 +111,7 @@ describe('catalog', () => {
       'sort',
       'promise',
       'common',
+      'ai-common',
     ]);
   });
 
@@ -127,10 +139,23 @@ describe('catalog', () => {
     ).toEqual(hot100BinaryTreeEntryIds);
   });
 
-  it('contains 71 easy and medium entries after hiding hard entries', () => {
-    expect(catalogItems).toHaveLength(71);
+  it('contains the AI common interview entries', () => {
+    const aiSection = catalogSections.find(section => section.id === 'ai');
+
+    expect(aiSection?.label).toBe('AI');
+    expect(
+      aiSection?.categories.map(category => category.label),
+    ).toEqual(['常问问题']);
+    expect(
+      findCatalogItemsByCategory('ai-common').map(item => item.id),
+    ).toEqual(aiCommonEntryIds);
+  });
+
+  it('contains 79 easy and medium entries after hiding hard entries', () => {
+    expect(catalogItems).toHaveLength(79);
     expect(findCatalogItemsByDomain('leetcode')).toHaveLength(57);
     expect(findCatalogItemsByDomain('javascript')).toHaveLength(14);
+    expect(findCatalogItemsByDomain('ai')).toHaveLength(8);
     expect(catalogItems.every(item => item.difficulty !== '困难')).toBe(
       true,
     );
@@ -228,5 +253,8 @@ describe('catalog', () => {
         item => item.domainId === 'javascript',
       ),
     ).toBe(true);
+    expect(findCatalogItemById('rag-core-flow')?.title).toBe(
+      'RAG 核心流程',
+    );
   });
 });
