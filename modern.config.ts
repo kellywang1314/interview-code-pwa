@@ -50,7 +50,7 @@ export default defineConfig({
       },
       webAppManifest: {
         content: {
-          name: '面试代码速查',
+          name: '代码速查',
           short_name: '代码速查',
           description: '适合移动端快速翻阅的高频编程面试题手册',
           start_url: baseUrl,
@@ -81,6 +81,18 @@ export default defineConfig({
   },
   html: {
     title: '面试代码速查',
+    tags: [
+      {
+        tag: 'link',
+        attrs: {
+          rel: 'stylesheet',
+          href: `${basePath}/global.css`,
+        },
+        head: true,
+        append: false,
+        publicPath: false,
+      },
+    ],
   },
   output: {
     assetPrefix: basePath || '/',

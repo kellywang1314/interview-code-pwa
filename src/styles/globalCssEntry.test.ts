@@ -13,11 +13,23 @@ function readSourceFile(relativePath: string): string {
 }
 
 describe('global css entry', () => {
-  it('loads global styles from the runtime entry instead of an async route chunk', () => {
+  it('links a stable global stylesheet from the HTML head', () => {
     const runtimeSource = readSourceFile('src/modern.runtime.ts');
     const appLayoutSource = readSourceFile('src/layouts/AppLayout.tsx');
+    const modernConfigSource = readSourceFile('modern.config.ts');
+    const copyAssetsSource = readSourceFile(
+      'build/copyAppIconsPlugin.ts',
+    );
 
-    expect(runtimeSource).toContain("./styles/global.css");
+    expect(runtimeSource).not.toContain("./styles/global.css");
     expect(appLayoutSource).not.toContain('../styles/global.css');
+    expect(modernConfigSource).toContain(
+      "href: `${basePath}/global.css`",
+    );
+    expect(modernConfigSource).toContain("rel: 'stylesheet'");
+    expect(copyAssetsSource).toContain(
+      "from: './src/styles/global.css'",
+    );
+    expect(copyAssetsSource).toContain("to: './global.css'");
   });
 });

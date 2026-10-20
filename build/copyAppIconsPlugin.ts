@@ -2,7 +2,7 @@ import type { pluginPWA } from 'rsbuild-plugin-pwa';
 
 type RsbuildPlugin = ReturnType<typeof pluginPWA>;
 
-/** Copies stable PWA icon filenames into the client output root. */
+/** Copies stable PWA shell assets into the client output root. */
 export function copyAppIconsPlugin(): RsbuildPlugin {
   return {
     name: 'copy-app-icons',
@@ -20,6 +20,10 @@ export function copyAppIconsPlugin(): RsbuildPlugin {
             {
               from: './src/assets/app-icon-512.png',
               to: './app-icon-512.png',
+            },
+            {
+              from: './src/styles/global.css',
+              to: './global.css',
             },
           ],
         },
