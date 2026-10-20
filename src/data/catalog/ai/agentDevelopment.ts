@@ -1,10 +1,10 @@
 import type { CatalogItem } from '../types';
 
-export const aiCommonItems = [
+export const agentDevelopmentItems = [
   {
     id: 'rag-core-flow',
     domainId: 'ai',
-    categoryId: 'ai-common',
+    categoryId: 'agent-development',
     title: 'RAG 核心流程',
     difficulty: '中等',
     tags: ['RAG', '检索增强生成', '知识库'],
@@ -48,7 +48,7 @@ function buildRagPrompt(
   {
     id: 'embedding-vector-search',
     domainId: 'ai',
-    categoryId: 'ai-common',
+    categoryId: 'agent-development',
     title: 'Embedding 与向量检索',
     difficulty: '中等',
     tags: ['Embedding', '向量检索', '相似度'],
@@ -108,7 +108,7 @@ function searchSimilarDocuments(
   {
     id: 'prompt-engineering-patterns',
     domainId: 'ai',
-    categoryId: 'ai-common',
+    categoryId: 'agent-development',
     title: 'Prompt Engineering 常见模式',
     difficulty: '简单',
     tags: ['Prompt', '提示词', '结构化输出'],
@@ -145,7 +145,7 @@ function buildStructuredPrompt(options: PromptOptions): string {
   {
     id: 'function-calling',
     domainId: 'ai',
-    categoryId: 'ai-common',
+    categoryId: 'agent-development',
     title: 'Function Calling / Tool Calling',
     difficulty: '中等',
     tags: ['Tool Calling', '函数调用', '结构化参数'],
@@ -190,7 +190,7 @@ function parseToolCall(rawText: string): ToolCall | null {
   {
     id: 'ai-agent-loop',
     domainId: 'ai',
-    categoryId: 'ai-common',
+    categoryId: 'agent-development',
     title: 'Agent 和普通 LLM 调用的区别',
     difficulty: '中等',
     tags: ['Agent', '规划', '工具调用'],
@@ -234,7 +234,7 @@ function decideNextAgentAction(state: AgentState): AgentAction {
   {
     id: 'hallucination-mitigation',
     domainId: 'ai',
-    categoryId: 'ai-common',
+    categoryId: 'agent-development',
     title: '大模型幻觉怎么缓解',
     difficulty: '中等',
     tags: ['幻觉', '可靠性', '答案校验'],
@@ -275,7 +275,7 @@ function checkAnswerGrounding(
   {
     id: 'fine-tuning-vs-rag',
     domainId: 'ai',
-    categoryId: 'ai-common',
+    categoryId: 'agent-development',
     title: '微调和 RAG 怎么选',
     difficulty: '中等',
     tags: ['微调', 'RAG', '模型选型'],
@@ -313,7 +313,7 @@ function chooseKnowledgeStrategy(input: StrategyInput): AiKnowledgeStrategy {
   {
     id: 'llm-context-window',
     domainId: 'ai',
-    categoryId: 'ai-common',
+    categoryId: 'agent-development',
     title: '上下文窗口与 Token 预算',
     difficulty: '简单',
     tags: ['Token', '上下文窗口', '成本控制'],

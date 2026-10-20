@@ -40,13 +40,22 @@ describe('HomePage', () => {
     expect(
       screen.getByRole('heading', { name: 'Promise' }),
     ).toBeVisible();
-    expect(screen.getByText('6 个结果')).toBeVisible();
+    expect(screen.getByText('13 个结果')).toBeVisible();
     expect(
       screen.getByRole('link', { name: /Promise\.all/ }),
     ).toBeVisible();
     expect(
       screen.queryByRole('link', { name: /两数之和/ }),
     ).not.toBeInTheDocument();
+  });
+
+  it('shows AI Coding entries from the AI navigation', () => {
+    renderHomePage('/?domain=ai&category=ai-coding');
+
+    expect(screen.getByText('3 个结果')).toBeVisible();
+    expect(
+      screen.getByRole('link', { name: /你的日常 AI 工作流是什么/ }),
+    ).toBeVisible();
   });
 
   it('searches live and writes the query to the URL', () => {

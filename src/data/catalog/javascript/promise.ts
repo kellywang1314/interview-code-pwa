@@ -6,26 +6,27 @@ export const promiseItems = [
     domainId: 'javascript',
     categoryId: 'promise',
     title: 'Promise 核心实现',
-    difficulty: '困难',
-    tags: ['Promise', '状态机', '微任务'],
+    difficulty: '中等',
+    tags: ['Promise', 'Promise 实现', '状态机', '微任务'],
     summary: '用不可逆状态机和回调队列理解 Promise 的核心行为。',
     description:
       'Promise 将一个未来结果表示为 pending、fulfilled 或 rejected 三种状态，并允许多个订阅者注册后续处理。',
     approach:
-      '实现时保存状态、结果和成功失败队列；首次 settle 后锁定状态。then 创建并返回新 Promise，通过微任务处理回调返回值与异常。',
+      '实现时保存状态、结果和成功失败队列；首次 settle 后锁定状态。then 创建新 Promise，并按 Promise/A+ 规则处理回调返回值、thenable、异常和循环引用。',
     code: `type PromiseState = 'pending' | 'fulfilled' | 'rejected';
 
-class SimplePromise<T> {
+class InterviewPromise<T> implements PromiseLike<T> {
   private state: PromiseState = 'pending';
+  private isResolved = false;
   private value!: T;
   private reason: unknown;
-  private fulfilledCallbacks: Array<(value: T) => void> = [];
-  private rejectedCallbacks: Array<(reason: unknown) => void> = [];
+  private fulfilledCallbacks: Array<() => void> = [];
+  private rejectedCallbacks: Array<() => void> = [];
 
-  /** 创建一个教学用途的简化 Promise。 */
+  /** 创建一个遵循核心 Promise/A+ 行为的教学实现。 */
   constructor(
     executor: (
-      resolve: (value: T) => void,
+      resolve: (value: T | PromiseLike<T>) => void,
       reject: (reason: unknown) => void,
     ) => void,
   ) {
@@ -36,44 +37,204 @@ class SimplePromise<T> {
     }
   }
 
-  /** 将 pending 状态更新为 fulfilled。 */
-  private resolve = (value: T): void => {
+  /** 锁定首次决议，并开始吸收普通值或 thenable。 */
+  private resolve = (value: T | PromiseLike<T>): void => {
+    if (this.state !== 'pending' || this.isResolved) return;
+    this.isResolved = true;
+    this.resolveValue(value);
+  };
+
+  /** 递归吸收已锁定决议中的普通值或 thenable。 */
+  private resolveValue = (value: T | PromiseLike<T>): void => {
     if (this.state !== 'pending') return;
+    if (value === this) {
+      this.rejectResolved(new TypeError('Promise 不能解析自身'));
+      return;
+    }
+
+    if (
+      value !== null &&
+      (typeof value === 'object' || typeof value === 'function')
+    ) {
+      let then: unknown;
+
+      try {
+        then = (value as { then?: unknown }).then;
+      } catch (error) {
+        this.rejectResolved(error);
+        return;
+      }
+
+      if (typeof then === 'function') {
+        let called = false;
+
+        try {
+          then.call(
+            value,
+            (nextValue: T | PromiseLike<T>) => {
+              if (called) return;
+              called = true;
+              this.resolveValue(nextValue);
+            },
+            (reason: unknown) => {
+              if (called) return;
+              called = true;
+              this.rejectResolved(reason);
+            },
+          );
+        } catch (error) {
+          if (!called) {
+            called = true;
+            this.rejectResolved(error);
+          }
+        }
+        return;
+      }
+    }
+
     this.state = 'fulfilled';
-    this.value = value;
-    queueMicrotask(() => {
-      this.fulfilledCallbacks.forEach(callback => callback(value));
-    });
+    this.value = value as T;
+    this.fulfilledCallbacks.forEach(callback => callback());
   };
 
   /** 将 pending 状态更新为 rejected。 */
   private reject = (reason: unknown): void => {
+    if (this.state !== 'pending' || this.isResolved) return;
+    this.isResolved = true;
+    this.rejectResolved(reason);
+  };
+
+  /** 使用已锁定决议中的失败原因更新状态。 */
+  private rejectResolved = (reason: unknown): void => {
     if (this.state !== 'pending') return;
     this.state = 'rejected';
     this.reason = reason;
-    queueMicrotask(() => {
-      this.rejectedCallbacks.forEach(callback => callback(reason));
-    });
+    this.rejectedCallbacks.forEach(callback => callback());
   };
 
-  /** 注册成功和失败处理函数。 */
-  then(
-    onFulfilled: (value: T) => void,
-    onRejected: (reason: unknown) => void,
-  ): void {
-    if (this.state === 'fulfilled') {
-      queueMicrotask(() => onFulfilled(this.value));
-    } else if (this.state === 'rejected') {
-      queueMicrotask(() => onRejected(this.reason));
-    } else {
-      this.fulfilledCallbacks.push(onFulfilled);
-      this.rejectedCallbacks.push(onRejected);
+  /** 注册处理函数并返回支持链式调用的新 Promise。 */
+  then<TResult1 = T, TResult2 = never>(
+    onFulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null,
+    onRejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): InterviewPromise<TResult1 | TResult2> {
+    let chainedPromise!: InterviewPromise<TResult1 | TResult2>;
+
+    chainedPromise = new InterviewPromise<TResult1 | TResult2>(
+      (resolve, reject) => {
+        /** 在微任务中执行成功回调并解析返回值。 */
+        const handleFulfilled = (): void => {
+          queueMicrotask(() => {
+            try {
+              const result = onFulfilled
+                ? onFulfilled(this.value)
+                : (this.value as unknown as TResult1);
+              resolvePromiseResult(
+                chainedPromise,
+                result,
+                resolve,
+                reject,
+              );
+            } catch (error) {
+              reject(error);
+            }
+          });
+        };
+
+        /** 在微任务中执行失败回调并解析返回值。 */
+        const handleRejected = (): void => {
+          queueMicrotask(() => {
+            try {
+              if (!onRejected) {
+                reject(this.reason);
+                return;
+              }
+
+              resolvePromiseResult(
+                chainedPromise,
+                onRejected(this.reason),
+                resolve,
+                reject,
+              );
+            } catch (error) {
+              reject(error);
+            }
+          });
+        };
+
+        if (this.state === 'fulfilled') {
+          handleFulfilled();
+        } else if (this.state === 'rejected') {
+          handleRejected();
+        } else {
+          this.fulfilledCallbacks.push(handleFulfilled);
+          this.rejectedCallbacks.push(handleRejected);
+        }
+      },
+    );
+
+    return chainedPromise;
+  }
+}
+
+/**
+ * 按 Promise/A+ 规则吸收回调返回值，并拒绝链式循环引用。
+ */
+function resolvePromiseResult<T>(
+  promise: InterviewPromise<T>,
+  result: unknown,
+  resolve: (value: T | PromiseLike<T>) => void,
+  reject: (reason: unknown) => void,
+): void {
+  if (promise === result) {
+    reject(new TypeError('检测到 Promise 链式循环引用'));
+    return;
+  }
+
+  if (
+    result !== null &&
+    (typeof result === 'object' || typeof result === 'function')
+  ) {
+    let then: unknown;
+
+    try {
+      then = (result as { then?: unknown }).then;
+    } catch (error) {
+      reject(error);
+      return;
+    }
+
+    if (typeof then === 'function') {
+      let called = false;
+
+      try {
+        then.call(
+          result,
+          (nextResult: unknown) => {
+            if (called) return;
+            called = true;
+            resolvePromiseResult(promise, nextResult, resolve, reject);
+          },
+          (reason: unknown) => {
+            if (called) return;
+            called = true;
+            reject(reason);
+          },
+        );
+      } catch (error) {
+        if (!called) {
+          called = true;
+          reject(error);
+        }
+      }
+      return;
     }
   }
+
+  resolve(result as T);
 }`,
     pitfalls: [
       '状态只能从 pending 转换一次，后续 resolve 或 reject 必须忽略。',
-      '完整 Promise/A+ 实现还要处理 then 链式返回、thenable 吸收与循环引用。',
+      'thenable 的 then 读取和执行都可能抛错，并且成功、失败回调只能采用首次调用。',
     ],
     sourceUrl:
       'https://github.com/kellywang1314/sourceCode/blob/master/webpack/src/js/promise/promise.js',
@@ -151,6 +312,79 @@ function promiseRace<T>(
     ],
     sourceUrl:
       'https://github.com/kellywang1314/sourceCode/blob/master/webpack/src/js/promise/promiseRace.js',
+  },
+  {
+    id: 'promise-image-loader',
+    domainId: 'javascript',
+    categoryId: 'promise',
+    title: 'Promise 图片加载',
+    difficulty: '简单',
+    tags: ['Promise', '图片加载', '事件封装'],
+    summary: '把图片的 load 和 error 事件封装成可组合的 Promise。',
+    description:
+      '图片加载是把事件回调改造成 Promise 的典型场景，成功时返回图片元素，失败时提供明确错误。',
+    approach:
+      '创建 Image 实例后先注册 onload 和 onerror，再设置 src 启动请求。调用方可以通过 await 获取已加载图片。',
+    code: `/**
+ * 加载图片并在成功时返回 HTMLImageElement。
+ */
+function loadImage(sourceUrl: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => {
+      reject(new Error(\`图片加载失败: \${sourceUrl}\`));
+    };
+    image.src = sourceUrl;
+  });
+}`,
+    pitfalls: [
+      '必须在设置 src 前注册事件，避免缓存命中时错过加载事件。',
+      '失败分支应 reject 明确错误，否则调用方难以定位资源地址。',
+    ],
+    sourceUrl:
+      'https://github.com/kellywang1314/sourceCode/blob/master/webpack/src/js/promise/onLoadIamge.js',
+  },
+  {
+    id: 'promise-timer-sequence',
+    domainId: 'javascript',
+    categoryId: 'promise',
+    title: 'Promise 定时器串行输出',
+    difficulty: '简单',
+    tags: ['Promise', 'setTimeout', '串行'],
+    summary: '把定时器封装成 Promise，按固定间隔逐个输出数字。',
+    description:
+      '考察 setTimeout、闭包与 async/await。直接在循环中同时创建定时器会并行计时，而逐个 await 才是串行等待。',
+    approach:
+      '先用 delay 把一次等待封装成 Promise，再在 for...of 循环中逐项 await，确保后一项在前一项输出后才开始计时。',
+    code: `/**
+ * 等待指定毫秒数后完成。
+ */
+function delay(durationMs: number): Promise<void> {
+  return new Promise(resolve => {
+    setTimeout(resolve, durationMs);
+  });
+}
+
+/**
+ * 按固定间隔串行输出数字。
+ */
+async function printNumbersSerially(
+  values: number[],
+  intervalMs: number,
+  onPrint: (value: number) => void,
+): Promise<void> {
+  for (const value of values) {
+    await delay(intervalMs);
+    onPrint(value);
+  }
+}`,
+    pitfalls: [
+      '用 var 声明循环变量会让多个回调共享同一个绑定，应使用 let、const 或显式闭包。',
+      '先 map 出 Promise 数组会同时启动全部定时器，不能得到逐项串行效果。',
+    ],
+    sourceUrl:
+      'https://github.com/kellywang1314/sourceCode/blob/master/webpack/src/js/promise/setTimeout.js',
   },
   {
     id: 'promise-resolve',
@@ -234,7 +468,7 @@ function withFinally<T>(
     domainId: 'javascript',
     categoryId: 'promise',
     title: 'Promise 并发限制',
-    difficulty: '困难',
+    difficulty: '中等',
     tags: ['Promise', '并发控制', '任务队列'],
     summary: '使用固定数量的 worker 消费共享任务下标。',
     description:
@@ -350,5 +584,139 @@ async function runSerially<T>(tasks: SerialTask<T>[]): Promise<T[]> {
     ],
     sourceUrl:
       'https://github.com/kellywang1314/sourceCode/blob/master/webpack/src/js/promise/promsie%E4%B8%B2%E8%A1%8C.js',
+  },
+  {
+    id: 'promise-ajax',
+    domainId: 'javascript',
+    categoryId: 'promise',
+    title: 'Promise 封装 Ajax',
+    difficulty: '中等',
+    tags: ['Promise', 'Ajax', 'XMLHttpRequest'],
+    summary: '把 XMLHttpRequest 的成功、失败和超时事件统一为 Promise。',
+    description:
+      '用 Promise 封装 Ajax 可以把事件式异步流程转换为 then 或 async/await，同时集中处理状态码、网络错误和超时。',
+    approach:
+      '创建 XMLHttpRequest 后配置请求方法、请求头和超时。2xx 或 304 时 resolve，HTTP 异常、网络错误和超时分别 reject。',
+    code: `interface AjaxOptions {
+  method?: string;
+  body?: Document | XMLHttpRequestBodyInit | null;
+  headers?: Record<string, string>;
+  timeoutMs?: number;
+}
+
+/**
+ * 用 Promise 封装 XMLHttpRequest。
+ */
+function requestWithPromise(
+  url: string,
+  options: AjaxOptions = {},
+): Promise<XMLHttpRequest> {
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    request.open(options.method ?? 'GET', url);
+    request.timeout = options.timeoutMs ?? 0;
+
+    Object.entries(options.headers ?? {}).forEach(([name, value]) => {
+      request.setRequestHeader(name, value);
+    });
+
+    request.onload = () => {
+      if (
+        (request.status >= 200 && request.status < 300) ||
+        request.status === 304
+      ) {
+        resolve(request);
+        return;
+      }
+
+      reject(new Error(\`请求失败: HTTP \${request.status}\`));
+    };
+    request.onerror = () => reject(new Error('网络连接失败'));
+    request.ontimeout = () => reject(new Error('请求超时'));
+    request.send(options.body ?? null);
+  });
+}`,
+    pitfalls: [
+      'onload 只表示收到响应，仍需检查 HTTP 状态码。',
+      '网络错误和超时不会进入正常状态码分支，必须分别监听并 reject。',
+    ],
+    sourceUrl:
+      'https://github.com/kellywang1314/sourceCode/blob/master/webpack/src/js/promise/promsieAjax.js',
+  },
+  {
+    id: 'promise-output-order',
+    domainId: 'javascript',
+    categoryId: 'promise',
+    title: 'Promise 输出顺序',
+    difficulty: '中等',
+    tags: ['Promise', '事件循环', '微任务'],
+    summary: '按同步任务、微任务、宏任务的优先级判断代码输出顺序。',
+    description:
+      'Promise executor 会同步执行，then 回调进入微任务队列，setTimeout 回调进入宏任务队列。当前同步栈结束后先清空微任务。',
+    approach:
+      '先标记全部同步输出，再处理 Promise.then 等微任务，最后进入下一轮事件循环执行 setTimeout 等宏任务。',
+    code: `/**
+ * 返回经典 Promise 面试题的预期输出顺序。
+ */
+function getPromiseOutputOrder(): string[] {
+  return [
+    'script start',
+    'promise executor',
+    'script end',
+    'promise then',
+    'setTimeout',
+  ];
+}`,
+    pitfalls: [
+      'new Promise 的 executor 是同步调用，不会等到 then 阶段才执行。',
+      '微任务会在当前同步代码结束后、下一个宏任务开始前全部清空。',
+    ],
+    sourceUrl:
+      'https://github.com/kellywang1314/sourceCode/blob/master/webpack/src/js/promise/promsie%E8%BE%93%E5%87%BA%E9%9D%A2%E8%AF%95%E9%A2%98.js',
+  },
+  {
+    id: 'promise-traffic-light',
+    domainId: 'javascript',
+    categoryId: 'promise',
+    title: 'Promise 红绿灯',
+    difficulty: '中等',
+    tags: ['Promise', '红绿灯', '异步循环'],
+    summary: '用任务序列依次等待并切换红、绿、黄灯。',
+    description:
+      '红绿灯题考察如何把延迟任务组合成有明确顺序的异步流程，以及如何把单轮执行与持续循环解耦。',
+    approach:
+      '把颜色和持续时间建模为步骤数组。单轮函数逐项通知颜色并等待；持续运行时由调用方控制循环次数或停止信号。',
+    code: `interface TrafficLightStep {
+  color: string;
+  durationMs: number;
+}
+
+/**
+ * 等待当前灯光持续时间。
+ */
+function waitForTrafficLight(durationMs: number): Promise<void> {
+  return new Promise(resolve => {
+    setTimeout(resolve, durationMs);
+  });
+}
+
+/**
+ * 按顺序执行一轮红绿灯任务。
+ */
+async function runTrafficLightCycle(
+  steps: TrafficLightStep[],
+  onChange: (color: string) => void,
+): Promise<void> {
+  for (const step of steps) {
+    onChange(step.color);
+    await waitForTrafficLight(step.durationMs);
+  }
+}`,
+    pitfalls: [
+      '不要用无法停止的递归直接启动永久循环，应把单轮流程暴露给调用方控制。',
+      '步骤必须逐项 await；同时创建全部延迟 Promise 会破坏灯光顺序。',
+    ],
+    sourceUrl:
+      'https://github.com/kellywang1314/sourceCode/blob/master/webpack/src/js/promise/red-green-yellow.js',
   },
 ] satisfies CatalogItem[];

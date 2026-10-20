@@ -9,11 +9,18 @@ describe('catalog search', () => {
     ['哈希表', 'two-sum'],
     ['一次遍历', 'two-sum'],
     ['promise.all', 'promise-all'],
+    ['Promise 实现', 'promise-core'],
+    ['并发限制', 'promise-concurrency-limit'],
+    ['Ajax', 'promise-ajax'],
+    ['红绿灯', 'promise-traffic-light'],
     ['链表', 'reverse-linked-list'],
     ['BFS / DFS', 'number-of-islands'],
     ['JAVASCRIPT', 'promise-all'],
     ['RAG', 'rag-core-flow'],
     ['Embedding', 'embedding-vector-search'],
+    ['日常 AI 工作流', 'daily-ai-coding-workflow'],
+    ['代码质量', 'ai-generated-code-quality'],
+    ['AI 工具', 'ai-coding-tools-comparison'],
   ])('searches "%s" across catalog metadata', (query, itemId) => {
     expect(
       searchCatalog(catalogItems, query).map(item => item.id),

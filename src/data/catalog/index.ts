@@ -1,4 +1,5 @@
-import { aiCommonItems } from './ai/common';
+import { agentDevelopmentItems } from './ai/agentDevelopment';
+import { aiCodingItems } from './ai/coding';
 import { commonItems } from './javascript/common';
 import { promiseItems } from './javascript/promise';
 import { arrayItems } from './leetcode/array';
@@ -101,9 +102,14 @@ export const catalogSections: CatalogSection[] = [
     label: 'AI',
     categories: [
       {
-        id: 'ai-common',
-        label: '常问问题',
-        items: createDisplayItems(aiCommonItems),
+        id: 'ai-coding',
+        label: 'AI Coding',
+        items: createDisplayItems(aiCodingItems),
+      },
+      {
+        id: 'agent-development',
+        label: 'Agent 开发',
+        items: createDisplayItems(agentDevelopmentItems),
       },
     ],
   },

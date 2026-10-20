@@ -9,7 +9,8 @@ export type CatalogCategoryId =
   | 'sort'
   | 'promise'
   | 'common'
-  | 'ai-common';
+  | 'ai-coding'
+  | 'agent-development';
 
 export type QuestionDifficulty = '简单' | '中等' | '困难';
 

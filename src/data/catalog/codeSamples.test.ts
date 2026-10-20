@@ -84,6 +84,96 @@ describe('catalog code samples', () => {
     expect(diagnostics).toEqual([]);
   });
 
+  it('runs pending InterviewPromise reactions in microtask order', async () => {
+    const item = findCatalogItemById('promise-core');
+    expect(item).toBeDefined();
+
+    const javascript = ts.transpileModule(item?.code ?? '', {
+      compilerOptions: {
+        module: ts.ModuleKind.None,
+        target: ts.ScriptTarget.ES2022,
+      },
+    }).outputText;
+    type InterviewPromiseConstructor = new <T>(
+      executor: (
+        resolve: (value: T | PromiseLike<T>) => void,
+        reject: (reason: unknown) => void,
+      ) => void,
+    ) => PromiseLike<T>;
+    // 这里只执行仓库内受信任的静态目录字符串，不接受任何外部输入。
+    const createInterviewPromise = new Function(
+      `${javascript}\nreturn InterviewPromise;`,
+    ) as () => InterviewPromiseConstructor;
+    const InterviewPromise = createInterviewPromise();
+    const output: string[] = [];
+    let resolvePending!: (value: string | PromiseLike<string>) => void;
+    const pendingPromise = new InterviewPromise<string>(resolve => {
+      resolvePending = resolve;
+    });
+
+    pendingPromise.then(value => {
+      output.push(value);
+      return value;
+    });
+    resolvePending('resolved');
+    queueMicrotask(() => output.push('queued'));
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(output).toEqual(['resolved', 'queued']);
+  });
+
+  it('locks InterviewPromise after resolving with a pending thenable', async () => {
+    const item = findCatalogItemById('promise-core');
+    expect(item).toBeDefined();
+
+    const javascript = ts.transpileModule(item?.code ?? '', {
+      compilerOptions: {
+        module: ts.ModuleKind.None,
+        target: ts.ScriptTarget.ES2022,
+      },
+    }).outputText;
+    type InterviewPromiseConstructor = new <T>(
+      executor: (
+        resolve: (value: T | PromiseLike<T>) => void,
+        reject: (reason: unknown) => void,
+      ) => void,
+    ) => PromiseLike<T>;
+    // 这里只执行仓库内受信任的静态目录字符串，不接受任何外部输入。
+    const createInterviewPromise = new Function(
+      `${javascript}\nreturn InterviewPromise;`,
+    ) as () => InterviewPromiseConstructor;
+    const InterviewPromise = createInterviewPromise();
+    const output: string[] = [];
+    let resolveAdopted!: (value: string) => void;
+    let rejectOuter!: (reason: unknown) => void;
+    const adoptedPromise = new Promise<string>(resolve => {
+      resolveAdopted = resolve;
+    });
+    const outerPromise = new InterviewPromise<string>((resolve, reject) => {
+      rejectOuter = reject;
+      resolve(adoptedPromise);
+    });
+
+    outerPromise.then(
+      value => {
+        output.push(value);
+        return value;
+      },
+      reason => {
+        output.push(`rejected: ${String(reason)}`);
+        throw reason;
+      },
+    );
+    rejectOuter(new Error('late rejection'));
+    resolveAdopted('resolved');
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(output).toEqual(['resolved']);
+  });
+
   it('counts one very wide island without overflowing the call stack', () => {
     const item = findCatalogItemById('number-of-islands');
     expect(item).toBeDefined();

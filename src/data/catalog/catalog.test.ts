@@ -74,7 +74,27 @@ const hot100BinaryTreeEntryIds = [
   'path-sum-iii',
   'lowest-common-ancestor-of-binary-tree',
 ];
-const aiCommonEntryIds = [
+const promiseEntryIds = [
+  'promise-race',
+  'promise-image-loader',
+  'promise-timer-sequence',
+  'promise-core',
+  'promise-all',
+  'promise-resolve',
+  'promise-finally',
+  'promise-concurrency-limit',
+  'promise-retry',
+  'promise-serial',
+  'promise-ajax',
+  'promise-output-order',
+  'promise-traffic-light',
+];
+const aiCodingEntryIds = [
+  'daily-ai-coding-workflow',
+  'ai-generated-code-quality',
+  'ai-coding-tools-comparison',
+];
+const agentDevelopmentEntryIds = [
   'prompt-engineering-patterns',
   'llm-context-window',
   'rag-core-flow',
@@ -92,7 +112,7 @@ const difficultyOrder = {
 };
 
 describe('catalog', () => {
-  it('contains three domains and nine categories in the planned order', () => {
+  it('contains three domains and ten categories in the planned order', () => {
     expect(catalogSections.map(section => section.id)).toEqual([
       'leetcode',
       'javascript',
@@ -111,7 +131,8 @@ describe('catalog', () => {
       'sort',
       'promise',
       'common',
-      'ai-common',
+      'ai-coding',
+      'agent-development',
     ]);
   });
 
@@ -139,23 +160,32 @@ describe('catalog', () => {
     ).toEqual(hot100BinaryTreeEntryIds);
   });
 
-  it('contains the AI common interview entries', () => {
+  it('contains all source Promise entries', () => {
+    expect(
+      findCatalogItemsByCategory('promise').map(item => item.id),
+    ).toEqual(promiseEntryIds);
+  });
+
+  it('contains the planned AI Coding and Agent development entries', () => {
     const aiSection = catalogSections.find(section => section.id === 'ai');
 
     expect(aiSection?.label).toBe('AI');
     expect(
       aiSection?.categories.map(category => category.label),
-    ).toEqual(['常问问题']);
+    ).toEqual(['AI Coding', 'Agent 开发']);
     expect(
-      findCatalogItemsByCategory('ai-common').map(item => item.id),
-    ).toEqual(aiCommonEntryIds);
+      findCatalogItemsByCategory('ai-coding').map(item => item.id),
+    ).toEqual(aiCodingEntryIds);
+    expect(
+      findCatalogItemsByCategory('agent-development').map(item => item.id),
+    ).toEqual(agentDevelopmentEntryIds);
   });
 
-  it('contains 79 easy and medium entries after hiding hard entries', () => {
-    expect(catalogItems).toHaveLength(79);
+  it('contains 89 easy and medium entries after hiding hard entries', () => {
+    expect(catalogItems).toHaveLength(89);
     expect(findCatalogItemsByDomain('leetcode')).toHaveLength(57);
-    expect(findCatalogItemsByDomain('javascript')).toHaveLength(14);
-    expect(findCatalogItemsByDomain('ai')).toHaveLength(8);
+    expect(findCatalogItemsByDomain('javascript')).toHaveLength(21);
+    expect(findCatalogItemsByDomain('ai')).toHaveLength(11);
     expect(catalogItems.every(item => item.difficulty !== '困难')).toBe(
       true,
     );
